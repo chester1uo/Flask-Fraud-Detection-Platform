@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Statistics{% endblock %}
+
+{% block content %}
+
+    <!-- Main content -->
+    <!-- Latest transactions table -->
+    <div class="mt-5">
+        <h4>Detailed Statistics</h4>
+        <!-- Filter for Prediction Results -->
+        <div class="mt-4">
+            <label for="prediction-filter">Filter by Prediction Result:</label>
+            <select id="prediction-filter" class="form-control" onchange="applyFilter(this.value)">
+                <option value="all">All</option>
+                <option value="0">Result 0</option>
+                <option value="1">Result 1</option>
+            </select>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/plotly-latest.min.js') }}"></script>
+        <!-- Placeholder divs for the plots -->
+        <div class="row">
+            <!-- Histogram of Total Amount -->
+            <div class="col-md-4">
+                <div id="histogram"></div>
+                <script>
+                    var trace1 = {
+                        x: {{ histogram_data }},
+                        type: 'histogram',
+                    };
+
+                    var layout1 = {
+                        title: 'Histogram of Total Amount'
+                    };
+
+                    Plotly.newPlot('histogram', [trace1], layout1);
+                </script>
+            </div>
+
+            <!-- Histogram of Day Hour -->
+            <div class="col-md-4">
+                <div id="histogram-day-hour"></div>
+                <script>
+                    var trace2 = {
+                        x: {{ histogram_day_hour_data }},
+                        type: 'histogram',
+                    };
+
+                    var layout2 = {
+                        title: 'Histogram of Day Hour'
+                    };
+
+                    Plotly.newPlot('histogram-day-hour', [trace2], layout2);
+                </script>
+            </div>
+
+            <!-- Histogram of Device System -->
+            <div class="col-md-4">
+                <div id="histogram-device-system"></div>
+                <script>
+                    var deviceSystemData = {{ histogram_device_system_data | tojson }};
+                    var deviceSystemValues = Object.keys(deviceSystemData);
+                    var deviceSystemFrequencies = Object.values(deviceSystemData);
+
+                    var trace3 = {
+                        x: deviceSystemValues,
+                        y: deviceSystemFrequencies,
+                        type: 'bar',
+                    };
+
+                    var layout3 = {
+                        title: 'Histogram of Device System',
+                        xaxis: {
+                            tickangle: -90
+                        }
+                    };
+
+                    var data = [trace3];
+                    Plotly.newPlot('histogram-device-system', data, layout3);
+                </script>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Choropleth Map of State Transactions -->
+            <div class="col-md-6">
+                <div id="choropleth-map"></div>
+                <script>
+
+                    var stateData = {{ state_data | tojson }};
+
+                    var states = Object.keys(stateData);
+                    var transactionCounts = Object.values(stateData);
+
+                    var data = [{
+                        type: 'choropleth',
+                        locationmode: 'USA-states',
+                        locations: states,
+                        z: transactionCounts,
+                        colorscale: 'Blues',
+                        autocolorscale: false,
+                        text: states,
+                        marker: {
+                            line: {
+                                color: 'rgb(255,255,255)',
+                                width: 2
+                            }
+                        },
+                        colorbar: {
+                            title: 'Transaction Count'
+                        }
+                    }];
+
+                    var layout = {
+                        title: 'Number of Transactions by State',
+                        geo: {
+                            scope: 'usa',
+                            showlakes: true,
+                            lakecolor: 'rgb(255,255,255)'
+                        }
+                    };
+
+                    Plotly.newPlot('choropleth-map', data, layout);
+                </script>
+
+            </div>
+
+            <!-- Pie Plot of Email Domain Counts -->
+            <div class="col-md-6">
+                <div id="email-domain-pie-plot"></div>
+                <script>
+                    var emailData = {{ email_data | tojson }};
+                    var emailDomains = Object.keys(emailData);
+                    var emailCounts = Object.values(emailData);
+
+                    var data = [{
+                        values: emailCounts,
+                        labels: emailDomains,
+                        type: 'pie'
+                    }];
+
+                    var layout = {
+                        title: 'Email Domain Distribution'
+                    };
+
+                    Plotly.newPlot('email-domain-pie-plot', data, layout);
+                </script>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- JS for refreshing (dummy functionality for now) -->
+    <script>
+        $('#refresh').click(function () {
+            // Logic for refreshing and fetching new data from database would go here.
+            window.location.href = '/details';
+        });
+    </script>
+
+{% endblock %}

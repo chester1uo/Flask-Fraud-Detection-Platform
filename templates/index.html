@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+    <!-- Main content -->
+
+    <!-- Three main counters -->
+
+    <div class="row text-center mt-4">
+        <div class="col">
+            <h3>Total Number:</h3>
+            <p id="total-number" class="big-number">{{ data.total_number }}</p>
+        </div>
+        <div class="col">
+            <h3>Fraud:</h3>
+            <p id="fraud-number" class="big-number">{{ data.fraud }}</p>
+        </div>
+        <div class="col">
+            <h3>Total Amounts:</h3>
+            <p id="amounts-number" class="big-number">${{ data.amounts }}</p>
+        </div>
+    </div>
+
+    <!-- Latest transactions table -->
+    <div class="mt-5">
+        <h4>Latest Transactions</h4>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Transaction Amount</th>
+                <th>Card Number</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody id="transactions-body">
+            {% for transaction in data.transactions %}
+                <tr>
+                    <td>{{ transaction.uuid }}</td>
+                    <td>${{ transaction.TransactionAmt }}</td>
+                    <td>{{ transaction.card1 }}</td>
+                    <td>{{ transaction.formatted_date }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <button id="refresh" class="btn btn-primary">Refresh</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+    <!-- JS for refreshing (dummy functionality for now) -->
+    <script>
+        $('#refresh').click(function () {
+            // Logic for refreshing and fetching new data from database would go here.
+            window.location.href = '/';
+        });
+    </script>
+    </body>
+{% endblock %}

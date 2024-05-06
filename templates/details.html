@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Details{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <!-- Latest transactions table -->
+    <div class="mt-5">
+        <h4>Detailed Transactions</h4>
+        <!-- Add search form -->
+        <form class="form-inline mt-3 mb-2">
+            <label class="sr-only" for="searchInput">Search</label>
+            <input type="text" class="form-control mr-2" id="searchInput" placeholder="Search by ID"
+                   style="width: 300px;">
+            <button type="button" class="btn btn-primary" id="searchButton">Search</button>
+        </form>
+
+        {# Display message if it exists #}
+        {% if message %}
+            <div class="alert alert-info">{{ message }}</div>
+        {% endif %}
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Transaction Amount</th>
+                <th>Product Type</th>
+                <th>Card No.</th>
+                <th>Date</th>
+                <th>Model A Score</th>
+                <th>Model B Score</th>
+                <th>Prediction</th>
+                <th>Device System</th>
+                <th>Postcode</th>
+                <th>Email</th>
+            </tr>
+            </thead>
+            <tbody id="details-body">
+            {% for transaction in data.transactions %}
+                <tr>
+                    <td>{{ transaction.uuid }}</td>
+                    <td>${{ transaction.TransactionAmt }}</td>
+                    <td>{{ transaction.ProductID }}</td>
+                    <td>{{ transaction.card1 }}</td>
+                    <td>{{ transaction.formatted_date }}</td>
+                    <td>{{ transaction.lgbm_prob }}</td>
+                    <td>{{ transaction.xgb_prob }}</td>
+                    <td>{{ transaction.prediction }}</td>
+                    <td>{{ transaction.DeviceSystem }}</td>
+                    <td>{{ transaction.Postcode }}</td>
+                    <td>{{ transaction.Email }}</td>
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% if data.pagination %}
+            <!-- Pagination controls -->
+            <div class="mt-3">
+                {{ data.pagination.links }}
+            </div>
+        {% endif %}
+
+        <button id="refresh" class="btn btn-primary">Refresh</button>
+    </div>
+
+
+    <!-- JS for searching function -->
+    <script>
+        // Handle search button click event
+        $('#searchButton').click(function () {
+            var searchId = $('#searchInput').val();
+            // Perform search by redirecting to the search route
+            window.location.href = '/details?id=' + searchId;
+        });
+    </script>
+
+    <!-- JS for refreshing (dummy functionality for now) -->
+    <script>
+        $('#refresh').click(function () {
+            // Logic for refreshing and fetching new data from database would go here.
+            window.location.href = '/details';
+        });
+    </script>
+{% endblock %}

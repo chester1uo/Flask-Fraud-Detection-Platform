@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<style>
+    /* Custom styles */
+    #sidebar {
+        background-color: #007BFF; /* Blue background for sidebar */
+    }
+
+    #sidebar .nav-link {
+        color: black;
+    }
+
+    #sidebar .nav-link.active {
+        background-color: #0056b3; /* Slightly darker blue for active state */
+    }
+
+    .big-number {
+        font-size: 2rem;
+        color: #007BFF; /* Blue color for numbers */
+    }
+
+    .logout-btn {
+        margin-top: 20px;
+        width: 100%;
+    }
+</style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar menu -->
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky">
+                <ul class="nav flex-column">
+                    <br><br>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'dashboard' %}active{% endif %}" href="/">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'details' %}active{% endif %}" href="/details">
+                            Details
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'statistics' %}active{% endif %}" href="/statistics">
+                            Statistics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'settings' %}active{% endif %}" href="/settings">
+                            Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'process' %}active{% endif %}" href="#">
+                            Process
+                        </a>
+                    </li>
+                    <a href="{{ url_for('logout') }}" class="btn btn-danger logout-btn">Logout</a>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+<!-- Common scripts -->
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+
+</body>
+</html>

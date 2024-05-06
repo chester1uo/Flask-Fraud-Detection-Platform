@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends 'base.html' %}
+{% block title %}Settings{% endblock %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+{% block content %}
+    <!-- Main content -->
+    <div class="mt-5">
+        <h4>Settings</h4>
+
+        <form method="post">
+            <h5>Model Settings</h5>
+            <div class="form-group">
+                <label for="modelA-threshold">Threshold for Model A</label>
+                <input type="range" class="form-control-range" id="modelA-threshold" name="modelA-threshold"
+                       min="0" max="1" step="0.01" value="{{ config.modelA_threshold }}">
+            </div>
+            <div class="form-group">
+                <label for="modelB-threshold">Threshold for Model B</label>
+                <input type="range" class="form-control-range" id="modelB-threshold" name="modelB-threshold"
+                       min="0" max="1" step="0.01" value="{{ config.modelB_threshold }}">
+            </div>
+            <div class="form-group">
+                <label for="model1-path">Path for Model 1</label>
+                <input type="text" class="form-control" id="model1-path" name="model1-path"
+                       placeholder="Enter path for Model 1" value="{{ config.model1_path }}">
+            </div>
+            <div class="form-group">
+                <label for="model2-path">Path for Model 2</label>
+                <input type="text" class="form-control" id="model2-path" name="model2-path"
+                       placeholder="Enter path for Model 2" value="{{ config.model2_path }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Apply Changes</button>
+            <button type="submit" name="action" value="train_model" class="btn btn-secondary">Train New Model
+            </button>
+            <button type="submit" name="action" value="new_detect" class="btn btn-secondary">New Detect
+            </button>
+        </form>
+
+        <hr>
+
+        <!-- Password change form -->
+        <h5>Change Password</h5>
+        <form method="post" action="{{ url_for('change_password') }}">
+            <div class="form-group">
+                <label for="old-password">Old Password</label>
+                <input type="password" class="form-control" id="old-password" name="old-password" required>
+            </div>
+            <div class="form-group">
+                <label for="new-password">New Password</label>
+                <input type="password" class="form-control" id="new-password" name="new-password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">Confirm New Password</label>
+                <input type="password" class="form-control" id="confirm-password" name="confirm-password"
+                       required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Change Password</button>
+        </form>
+
+    </div>
+
+
+{% endblock %}
