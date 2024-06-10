@@ -1,0 +1,13 @@
+<div data-uuid="{{ transaction.uuid }}">
+    <p><strong>ID:</strong> {{ transaction.uuid }}</p>
+    <p><strong>Transaction Amount:</strong> ${{ transaction.TransactionAmt }}</p>
+    <p><strong>Product Type:</strong> {{ transaction.ProductID }}</p>
+    <p><strong>Card No.:</strong> {{ transaction.card1 }}</p>
+    <p><strong>Date:</strong> {{ transaction.formatted_date }}</p>
+    <p><strong>Model A Score:</strong> {{ transaction.lgbm_prob }}</p>
+    <p><strong>Model B Score:</strong> {{ transaction.xgb_prob }}</p>
+    <p><strong>Prediction:</strong> {{ transaction.prediction }}</p>
+    <p><strong>Device System:</strong> {{ transaction.DeviceSystem }}</p>
+    <p><strong>Postcode:</strong> {{ transaction.Postcode }}</p>
+    <p><strong>Email:</strong> {{ transaction.Email }}</p>
+</div>

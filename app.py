@@ -150,7 +150,7 @@ def details():
         'pagination': pagination if not search_id else None
     }
 
-    return render_template('details.html', active_page='details',data=data, message=message)
+    return render_template('details.html', active_page='details', data=data, message=message)
 
 
 @app.route('/statistics', methods=['GET'])
@@ -177,7 +177,7 @@ def detect():
     try:
         # Convert the string data to JSON format
         decrypted_aes_key = service.security.decrypt_key_with_rsa("data/keys/private_key.pem",
-                                                                 base64.b64decode(otp))
+                                                                  base64.b64decode(otp))
         # print("Receive key:\n",decrypted_aes_key)
         # print("Receive data:\n", data)
         decrypted_data = service.security.decrypt_with_aes(decrypted_aes_key, data)
@@ -212,6 +212,77 @@ def detect():
     service.database_connect.user_collection.insert_one(user_data)
 
     return jsonify(score_return)
+
+
+@app.route('/process', methods=['GET'])
+@login_required
+def process():
+    transactions = get_suspect_data()
+    data = {'transactions': transactions}
+    return render_template('process.html', active_page='process', data=data)
+
+
+@app.route('/get_transaction_details', methods=['GET'])
+@login_required
+def get_transaction_details():
+    uuid = request.args.get('uuid')
+    transaction = get_transaction_by_uuid(uuid)
+    if not transaction:
+        return "Transaction not found", 404
+    details_html = render_template('transaction_details.html', transaction=transaction)
+    return details_html
+
+
+def get_transaction_by_uuid(uuid):
+    transactions_collection = collection
+    transaction = transactions_collection.aggregate([
+        {"$match": {"uuid": uuid}},
+        {
+            "$lookup": {
+                "from": "results",
+                "localField": "uuid",
+                "foreignField": "uuid",
+                "as": "transaction_details"
+            }
+        },
+        {"$unwind": "$transaction_details"},
+        {
+            "$lookup": {
+                "from": "users",
+                "localField": "uuid",
+                "foreignField": "uuid",
+                "as": "user_details"
+            }
+        }
+    ])
+    transaction = next(transaction, None)
+    if transaction:
+        transaction["formatted_date"] = datetime.datetime.utcfromtimestamp(transaction["timestamp"] / 1000).strftime(
+            '%Y-%m-%d %H:%M:%S.%f')[:-3]
+        transaction["TransactionAmt"] = round(transaction["TransactionAmt"], 2)
+        transaction["card1"] = str(int(transaction["card1"])) + "****"
+        transaction["ProductID"] = transaction["user_details"][0]["ProductID"]
+        transaction["lgbm_prob"] = round(transaction["transaction_details"]["lgbm_prob"], 3)
+        transaction["xgb_prob"] = round(transaction["transaction_details"]["xgb_prob"], 3)
+        transaction["prediction"] = transaction["transaction_details"].get("prediction", -1)
+        transaction["DeviceSystem"] = transaction["user_details"][0]["OperatingSystem"]
+        transaction["Postcode"] = transaction["user_details"][0]["ZIPCode"]
+        transaction["Email"] = "***" + transaction["user_details"][0]["UserEmail"][3:]
+    return transaction
+
+
+@app.route('/update_transaction_label', methods=['POST'])
+@login_required
+def update_transaction_label():
+    uuid = request.form.get('uuid')
+    label = int(request.form.get('label'))
+    update_label_in_db(uuid, label)
+    return "Label updated", 200
+
+
+def update_label_in_db(uuid, label):
+    print(f"Update prediction {uuid} to {label}")
+    result_collection.update_one({'uuid': uuid}, {'$set': {'prediction': label}})
 
 
 @app.route('/settings', methods=['GET', 'POST'])

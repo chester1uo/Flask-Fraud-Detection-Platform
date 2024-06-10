@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Process{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <!-- Transactions table -->
+    <div class="mt-5">
+        <h4>Process Transactions</h4>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Action</th>
+                <th>ID</th>
+                <th>Transaction Amount</th>
+                <th>Product Type</th>
+                <th>Card No.</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody id="process-body">
+            {% for transaction in data.transactions %}
+                <tr>
+                    <td><button class="btn btn-primary btn-sm" onclick="showDetails('{{ transaction.uuid }}')">Details</button></td>
+                    <td>{{ transaction.uuid }}</td>
+                    <td>${{ transaction.TransactionAmt }}</td>
+                    <td>{{ transaction.ProductID }}</td>
+                    <td>{{ transaction.card1 }}</td>
+                    <td>{{ transaction.formatted_date }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal for showing details -->
+    <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailsModalLabel">Transaction Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Details content will be loaded here -->
+                    <div id="transactionDetails"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" onclick="labelFraud()">Label Fraud</button>
+                    <button type="button" class="btn btn-success" onclick="labelNotFraud()">Label Not Fraud</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS for handling modal details -->
+    <script>
+        function showDetails(uuid) {
+            $.ajax({
+                url: '/get_transaction_details',
+                method: 'GET',
+                data: { uuid: uuid },
+                success: function(response) {
+                    $('#transactionDetails').html(response);
+                    $('#detailsModal').data('uuid', uuid); // Store UUID in modal data
+                    $('#detailsModal').modal('show');
+                }
+            });
+        }
+
+        function labelFraud() {
+            updateLabel(1);
+        }
+
+        function labelNotFraud() {
+            updateLabel(0);
+        }
+
+        function updateLabel(label) {
+            var uuid = $('#detailsModal').data('uuid'); // Retrieve UUID from modal data
+            $.ajax({
+                url: '/update_transaction_label',
+                method: 'POST',
+                data: { uuid: uuid, label: label },
+                success: function(response) {
+                    $('#detailsModal').modal('hide');
+                    location.reload(); // Reload page to reflect changes
+                }
+            });
+        }
+    </script>
+{% endblock %}
